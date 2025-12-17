@@ -68,9 +68,7 @@ const CreateQuotation = () => {
   };
   const getGenerateCRN = async () => {
     try {
-
       let reqBody = { city: formData?.city }
-
       const res = await authInstance.generateCRN(reqBody)
       console.log("res of getGenerateCRN", res)
       if (res?.success) {
@@ -133,7 +131,6 @@ const CreateQuotation = () => {
         toast.success("Quotation generated successfully");
         setPdfLink(response?.data?.url);
         handleDownload(response?.data?.url)
-        // alert("Quotation generated successfully");
       }
     } catch (error) {
       toast.error("Something went wrong");
@@ -588,7 +585,6 @@ const CreateQuotation = () => {
             )}
           </div>
         </div>
-
       </div>
     </div>
   );
