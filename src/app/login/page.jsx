@@ -51,7 +51,7 @@ const Login = () => {
 
         } catch (error) {
             console.error("Login Error:", error);
-            alert("Login failed. Please try again.");
+        toast.error("Login failed. Please try again.");
         } finally {
             setLoading(false);
             router.push("/create-quotation");
