@@ -1,6 +1,7 @@
 
 "use client";
 import authInstance from "@/_api/auth";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 
@@ -28,7 +29,8 @@ const cities = [
 
 const CreateQuotation = () => {
   const today = new Date().toISOString().split("T")[0];
-
+  const STORAGE_KEY = "create_quotation_form";
+ const router = useRouter();
   const [step, setStep] = useState(0);
   const [multipleProduct, setMultipleProduct] = useState([{
     id: Date.now(),
@@ -228,6 +230,31 @@ const CreateQuotation = () => {
       console.error("Quotation generation failed", error);
     }
   };
+  const resetForm = () => {
+  setStep(0);
+  setFormData({
+    city: "",
+    dob: "",
+    crn: "",
+    name: "",
+    contactNumber: "",
+    address: "",
+    total: "",
+    discounts: "",
+    payable: "",
+    region: "",
+  });
+  setMultipleProduct([{
+    id: Date.now(),
+    description: "",
+    products: "",
+    process: "",
+    area: "",
+    prices: "",
+    areaSqFt: "",
+  }]);
+};
+
 
   const handleDownload = (url) => {
     if (!url) return;
@@ -240,6 +267,9 @@ const CreateQuotation = () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+     // Clear saved form after successful URL
+  localStorage.removeItem(STORAGE_KEY);
+  resetForm();
 
   };
 
@@ -285,6 +315,37 @@ const CreateQuotation = () => {
     }));
   }, [formData.total, formData.discounts]);
 
+  useEffect(() => {
+    const payload = {
+      formData,
+      multipleProduct,
+      step,
+    };
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+  }, [formData, multipleProduct, step]);
+
+  useEffect(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    console.log("saved---------------", saved);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+
+        if (parsed.formData) setFormData(parsed.formData);
+        if (parsed.multipleProduct) setMultipleProduct(parsed.multipleProduct);
+        if (typeof parsed.step === "number") setStep(parsed.step);
+      } catch (err) {
+        console.error("Failed to restore quotation data", err);
+      }
+    }
+  }, []);
+   useEffect(() => {
+        const token = localStorage.getItem("urban_auth_token");
+        if (!token) {
+          router.replace("/");
+        }
+      }, [router]);
 
 
   console.log("formData-----------------------", formData, getCategory, rates, multipleProduct)
@@ -377,6 +438,7 @@ const CreateQuotation = () => {
               </label>
               <input
                 name="name"
+                value={formData?.name}
                 placeholder="Enter customer name"
                 onChange={handleChange}
                 className="w-full border rounded-lg p-3 focus:outline-orange-400 input-black"
@@ -411,6 +473,7 @@ const CreateQuotation = () => {
               </label>
               <textarea
                 name="address"
+                value={formData.address}
                 placeholder="Enter full address"
                 onChange={handleChange}
                 className="w-full border rounded-lg p-3 focus:outline-orange-400 input-black"
