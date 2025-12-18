@@ -517,7 +517,7 @@ const CreateQuotation = () => {
                       <input
                         type="text"
                         value={product.areaSqFt}
-                        placeholder="Area to paint"
+                        placeholder="Area to paint (eg. walls, ceilings, etc.)"
                         onChange={(e) => handleMultipleProductChange(product.id, 'areaSqFt', e.target.value)}
                         className="w-full border rounded-lg p-3 focus:outline-orange-400 input-black"
                       />
