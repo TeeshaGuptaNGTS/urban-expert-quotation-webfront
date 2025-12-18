@@ -31,7 +31,7 @@ const CreateQuotation = () => {
 
   const [formData, setFormData] = useState({
     city: "",
-    dob: "",
+    date: "",
     crn: "",
     name: "",
     contactNumber: "",
@@ -58,12 +58,37 @@ const CreateQuotation = () => {
   const [processType, setProcessType] = useState([
     "Fresh", "Repair"
   ]);
+  const indianMobileRegex = /^[6-9]\d{9}$/;
+  const isValidIndianMobile = (num) =>
+    /^[6-9]\d{9}$/.test(num);
+
   const selectedProductRate = productsByCategory.find(
     (item) => item.product === formData.products
   );
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    // Contact Number: allow only digits & max 10 chars
+    if (name === "contactNumber") {
+      if (!/^\d*$/.test(value)) return; // block non-numeric
+      if (value.length > 10) return;
+
+      setFormData((p) => ({ ...p, contactNumber: value }));
+      return;
+    }
+
+    // Discount: only numbers between 0–100
+    if (name === "discounts") {
+      if (!/^\d*$/.test(value)) return; // only digits
+
+      const num = Number(value);
+      if (num > 100) return;
+
+      setFormData((p) => ({ ...p, discounts: value }));
+      return;
+    }
+
     setFormData((p) => ({ ...p, [name]: value }));
   };
   const getGenerateCRN = async () => {
@@ -99,6 +124,15 @@ const CreateQuotation = () => {
     }
   };
   const handleSubmit = async () => {
+    if (!isValidIndianMobile(formData.contactNumber)) {
+      toast.error("Invalid Indian mobile number");
+      return;
+    }
+
+    if (Number(formData.discounts) < 0 || Number(formData.discounts) > 100) {
+      toast.error("Discount must be between 0 and 100");
+      return;
+    }
     try {
       const reqBody = {
         city: formData.city.toLowerCase(),
@@ -126,17 +160,38 @@ const CreateQuotation = () => {
       console.log("Quotation reqBody --->", reqBody);
 
       const response = await authInstance.generateQuotation(reqBody);
-      console.log("response of generate quotation------------", response)
+      console.log("response of generate quotation------------", response, response?.data?.url)
       if (response?.success) {
         toast.success("Quotation generated successfully");
         setPdfLink(response?.data?.url);
-        handleDownload(response?.data?.url)
+        // autoDownloadPdf(response?.data?.url);
+        // handleDownload(response?.data?.url)
       }
     } catch (error) {
       toast.error("Something went wrong");
       console.error("Quotation generation failed", error);
     }
   };
+  const autoDownloadPdf = async (url) => {
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+
+      link.href = blobUrl;
+      link.download = "quotation.pdf"; // file name
+      document.body.appendChild(link);
+      link.click();
+
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (err) {
+      console.error("PDF download failed", err);
+    }
+  };
+
   const handleDownload = (url) => {
     if (!url) return;
 
@@ -148,6 +203,15 @@ const CreateQuotation = () => {
     document.body.removeChild(link);
   };
 
+  const handleNext = () => {
+    if (step === 1) {
+      if (!isValidIndianMobile(formData.contactNumber)) {
+        toast.error("Enter a valid Indian mobile number");
+        return;
+      }
+    }
+    setStep(step + 1);
+  };
 
 
   useEffect(() => {
@@ -204,16 +268,7 @@ const CreateQuotation = () => {
       payable: payable,
     }));
   }, [formData.total, formData.discounts]);
-  useEffect(() => {
-    if (!pdfLink) return;
 
-    const link = document.createElement("a");
-    link.href = pdfLink;
-    link.download = "quotation.pdf";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }, [pdfLink]);
 
 
 
@@ -278,15 +333,7 @@ const CreateQuotation = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
             {/* DOB */}
-            <div className="flex flex-col gap-1">
-              <label className="text-sm font-medium text-gray-700">Select DOB</label>
-              <input
-                name="dob"
-                type="date"
-                onChange={handleChange}
-                className="input"
-              />
-            </div>
+
 
             {/* CRN */}
             <div className="flex flex-col gap-1">
@@ -322,10 +369,13 @@ const CreateQuotation = () => {
               </label>
               <input
                 name="contactNumber"
-                placeholder="Enter contact number"
+                value={formData.contactNumber}
+                placeholder="Enter 10-digit mobile number"
                 onChange={handleChange}
+                maxLength={10}
                 className="input"
               />
+
             </div>
 
             {/* Address */}
@@ -427,7 +477,7 @@ const CreateQuotation = () => {
                 type="text"
                 name="areaSqFt"
                 value={formData.areaSqFt}
-                placeholder="Area to paint"
+                placeholder="Area to paint (eg. Interior Walls, ceiling, roof etc.)"
                 onChange={handleChange}
                 className="input"
               />
@@ -469,7 +519,7 @@ const CreateQuotation = () => {
               <input
                 name="discounts"
                 type="number"
-                min="0"
+                min="10"
                 max="100"
                 value={formData.discounts}
                 onChange={handleChange}
@@ -509,43 +559,7 @@ const CreateQuotation = () => {
           </div>
 
         )}
-
         {/* Buttons */}
-        {/* <div className="flex justify-between pt-4">
-          {step > 0 && (
-            <button
-              onClick={() => setStep(step - 1)}
-              className="px-4 py-2 border rounded-lg bg-orange-500 text-white"
-            >
-              Back
-            </button>
-          )}
-
-          {step < 2 ? (
-            <button
-              onClick={() => setStep(step + 1)}
-              className="ml-auto bg-orange-500 text-white px-6 py-2 rounded-lg"
-            >
-              Next
-            </button>
-          ) : (
-            <button
-              onClick={handleSubmit}
-              className="ml-auto bg-orange-500 text-white px-6 py-2 rounded-lg"
-            >
-              Send Quotation
-            </button>
-          )}
-          {pdfLink && (
-            <button
-              onClick={() => handleDownload(pdfLink)}
-              className="bg-orange-500 text-white px-4 py-2 rounded-lg"
-            >
-              Download Quotation PDF
-            </button>
-          )}
-
-        </div> */}
         <div className="flex flex-col sm:flex-row sm:justify-between gap-2 pt-4">
           <div className="flex gap-2 justify-start">
             {step > 0 && (
@@ -561,7 +575,7 @@ const CreateQuotation = () => {
           <div className="flex gap-2 justify-end">
             {step < 2 ? (
               <button
-                onClick={() => setStep(step + 1)}
+                onClick={handleNext}
                 className="px-6 py-2 rounded-lg bg-orange-500 text-white"
               >
                 Next

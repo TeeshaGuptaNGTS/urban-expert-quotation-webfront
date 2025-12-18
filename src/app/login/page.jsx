@@ -59,12 +59,12 @@ const Login = () => {
     };
 
     // Redirect if already logged in
-    //   useEffect(() => {
-    //     const token = localStorage.getItem("urban_auth_token");
-    //     if (token) {
-    //       router.replace("/create-quotation");
-    //     }
-    //   }, [router]);
+      useEffect(() => {
+        const token = localStorage.getItem("urban_auth_token");
+        if (token) {
+          router.replace("/create-quotation");
+        }
+      }, [router]);
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-[#fff4e6] px-4">
