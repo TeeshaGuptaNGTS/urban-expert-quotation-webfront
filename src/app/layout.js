@@ -37,7 +37,7 @@ export default function RootLayout({ children }) {
             },
             error: {
               style: {
-                background: "#dc2626",
+                background: "#ff6900",
                 color: "#fff",
               },
             },
