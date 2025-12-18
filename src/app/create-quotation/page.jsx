@@ -147,51 +147,51 @@ const CreateQuotation = () => {
     }
   };
   const validateForm = () => {
-  if (!formData.city) {
-    toast.error("Please select city");
-    return false;
-  }
-
-  if (!formData.name.trim()) {
-    toast.error("Customer name is required");
-    return false;
-  }
-
-  if (!/^[6-9]\d{9}$/.test(formData.contactNumber)) {
-    toast.error("Enter a valid 10-digit Indian mobile number");
-    return false;
-  }
-
-  if (!formData.address.trim()) {
-    toast.error("Address is required");
-    return false;
-  }
-
-  if (!multipleProduct.length) {
-    toast.error("Add at least one product");
-    return false;
-  }
-
-  for (let i = 0; i < multipleProduct.length; i++) {
-    const item = multipleProduct[i];
-
-    if (!item.description || !item.products || !item.process) {
-      toast.error(`Please fill all fields for Product ${i + 1}`);
+    if (!formData.city) {
+      toast.error("Please select city");
       return false;
     }
 
-    if (!item.area || Number(item.area) <= 0) {
-      toast.error(`Enter valid area for Product ${i + 1}`);
+    if (!formData.name.trim()) {
+      toast.error("Customer name is required");
       return false;
     }
-  }
 
-  return true;
-};
+    if (!/^[6-9]\d{9}$/.test(formData.contactNumber)) {
+      toast.error("Enter a valid 10-digit Indian mobile number");
+      return false;
+    }
+
+    if (!formData.address.trim()) {
+      toast.error("Address is required");
+      return false;
+    }
+
+    if (!multipleProduct.length) {
+      toast.error("Add at least one product");
+      return false;
+    }
+
+    for (let i = 0; i < multipleProduct.length; i++) {
+      const item = multipleProduct[i];
+
+      if (!item.description || !item.products || !item.process) {
+        toast.error(`Please fill all fields for Product ${i + 1}`);
+        return false;
+      }
+
+      if (!item.area || Number(item.area) <= 0) {
+        toast.error(`Enter valid area for Product ${i + 1}`);
+        return false;
+      }
+    }
+
+    return true;
+  };
 
 
   const handleSubmit = async () => {
-     if (!validateForm()) return;
+    if (!validateForm()) return;
     try {
       // Prepare items for backend
       const items = multipleProduct.map(item => ({
@@ -231,12 +231,16 @@ const CreateQuotation = () => {
 
   const handleDownload = (url) => {
     if (!url) return;
+
     const link = document.createElement("a");
     link.href = url;
-    link.download = "quotation.pdf";
+    link.target = "_blank";   // open in new tab
+    link.rel = "noopener noreferrer";
+
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+
   };
 
   useEffect(() => {
@@ -569,7 +573,7 @@ const CreateQuotation = () => {
               <label className="text-sm font-medium text-gray-700">Total Amount</label>
               <input
                 name="total"
-                value={formData.total !== "" ? Number(formData.total).toFixed(2): ""}
+                value={formData.total !== "" ? Number(formData.total).toFixed(2) : ""}
                 readOnly
                 placeholder="Total"
                 className="w-full border rounded-lg p-3 bg-gray-100 input-black"
@@ -581,7 +585,7 @@ const CreateQuotation = () => {
               <label className="text-sm font-medium text-gray-700">Payable Amount</label>
               <input
                 name="payable"
-                value={formData.payable !== "" ? Number(formData.payable).toFixed(2): ""}
+                value={formData.payable !== "" ? Number(formData.payable).toFixed(2) : ""}
                 readOnly
                 placeholder="Payable Amount"
                 className="w-full border rounded-lg p-3 bg-gray-100 input-black"
