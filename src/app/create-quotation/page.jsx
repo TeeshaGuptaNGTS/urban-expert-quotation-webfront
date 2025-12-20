@@ -201,8 +201,8 @@ const CreateQuotation = () => {
         process: item.process.toLowerCase(),
         area: item.areaSqFt,
         product: item.products,
-        areaSqFt: Number(item.prices || 0)
-      }));
+        areaSqFt: Number(item.area || 0)
+      }))
 
       const reqBody = {
         city: formData.city.toLowerCase(),
@@ -220,6 +220,7 @@ const CreateQuotation = () => {
 
       const response = await authInstance.generateQuotation(reqBody);
       console.log("response of generate quotation------------", response)
+      return 
       if (response?.success) {
         toast.success("Quotation generated successfully");
         setPdfLink(response?.data?.url);
@@ -594,6 +595,7 @@ const CreateQuotation = () => {
                     <div className="flex flex-col gap-1">
                       <label className="text-sm font-medium text-gray-700">Area (sqft)</label>
                       <input
+                      
                         value={product.area}
                         placeholder="Enter area in sqft"
                         onChange={(e) => handleMultipleProductChange(product.id, 'area', e.target.value)}
