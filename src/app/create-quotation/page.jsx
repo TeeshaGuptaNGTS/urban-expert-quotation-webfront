@@ -220,7 +220,7 @@ const CreateQuotation = () => {
 
       const response = await authInstance.generateQuotation(reqBody);
       console.log("response of generate quotation------------", response)
-      return 
+      
       if (response?.success) {
         toast.success("Quotation generated successfully");
         setPdfLink(response?.data?.url);
