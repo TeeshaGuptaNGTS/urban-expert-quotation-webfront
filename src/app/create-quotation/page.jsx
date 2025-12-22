@@ -635,7 +635,7 @@ const CreateQuotation = () => {
                     {/* Area (Paintable) */}
                     <div className="flex flex-col gap-1">
                       <label className="text-sm font-medium text-gray-700">
-                        Where to paint
+                        Where to Paint
                       </label>
                       <input
                         type="text"
