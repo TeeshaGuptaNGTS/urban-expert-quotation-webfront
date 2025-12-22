@@ -8,21 +8,11 @@ const steps = ["City", "Customer", "Pricing"];
 
 const cities = [
   { id: 1, city: "Delhi" },
-  { id: 2, city: "New Delhi" },
-  { id: 3, city: "Noida" },
-  { id: 4, city: "Greater Noida" },
-  { id: 5, city: "Ghaziabad" },
-  { id: 6, city: "Faridabad" },
-  { id: 7, city: "Gurugram" },
-  { id: 8, city: "Gurgaon" },
-  { id: 9, city: "Sonipat" },
-  { id: 10, city: "Bahadurgarh" },
-  { id: 11, city: "Jhajjar" },
-  { id: 12, city: "Rohtak" },
-  { id: 13, city: "Palwal" },
-  { id: 14, city: "Bhiwadi" },
-  { id: 15, city: "Rewari" },
-  { id: 16, city: "Meerut" },
+  { id: 3, city: "Ghaziabad" },
+  { id: 4, city: "Faridabad" },
+  { id: 5, city: "Gurgaon" },
+  { id: 6, city: "Noida" },
+  { id: 8, city: "Greater Noida" },
   { id: 17, city: "Hyderabad" },
 ];
 
