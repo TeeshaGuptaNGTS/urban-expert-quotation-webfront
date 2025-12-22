@@ -13,7 +13,8 @@ const cities = [
   { id: 5, city: "Gurgaon" },
   { id: 6, city: "Noida" },
   { id: 8, city: "Greater Noida" },
-  { id: 17, city: "Hyderabad" },
+  { id: 9, city: "Hyderabad" },
+  { id: 10, city: "Bengaluru" },
 ];
 
 const CreateQuotation = () => {
