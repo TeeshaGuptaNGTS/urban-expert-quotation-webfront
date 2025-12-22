@@ -50,7 +50,7 @@ const CreateQuotation = () => {
   const [rates, setRates] = useState({});
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [pdfLink, setPdfLink] = useState(null);
-  const [processType, setProcessType] = useState(["Fresh", "Repair"]);
+  const [processType, setProcessType] = useState(["Fresh", "Repaint"]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
