@@ -1,4 +1,3 @@
-
 "use client";
 import authInstance from "@/_api/auth";
 import { useRouter } from "next/navigation";
@@ -24,23 +23,25 @@ const cities = [
   { id: 14, city: "Bhiwadi" },
   { id: 15, city: "Rewari" },
   { id: 16, city: "Meerut" },
-  { id: 17, city: "Hyderabad" }
+  { id: 17, city: "Hyderabad" },
 ];
 
 const CreateQuotation = () => {
   const today = new Date().toISOString().split("T")[0];
   const STORAGE_KEY = "create_quotation_form";
- const router = useRouter();
+  const router = useRouter();
   const [step, setStep] = useState(0);
-  const [multipleProduct, setMultipleProduct] = useState([{
-    id: Date.now(),
-    description: "", //category
-    products: "", //product 
-    process: "", // process
-    area: "", //areasqft
-    prices: "", //rate
-    areaSqFt: "", //paintable area  
-  }]);
+  const [multipleProduct, setMultipleProduct] = useState([
+    {
+      id: Date.now(),
+      description: "", //category
+      products: "", //product
+      process: "", // process
+      area: "", //areasqft
+      prices: "", //rate
+      areaSqFt: "", //paintable area
+    },
+  ]);
   const [formData, setFormData] = useState({
     city: "",
     dob: "",
@@ -59,9 +60,7 @@ const CreateQuotation = () => {
   const [rates, setRates] = useState({});
   const [loadingProducts, setLoadingProducts] = useState(false);
   const [pdfLink, setPdfLink] = useState(null);
-  const [processType, setProcessType] = useState([
-    "Fresh", "Repair"
-  ]);
+  const [processType, setProcessType] = useState(["Fresh", "Repair"]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -70,56 +69,66 @@ const CreateQuotation = () => {
 
   // Handle multiple product change
   const handleMultipleProductChange = (id, field, value) => {
-    setMultipleProduct(prev => prev.map(item => {
-      if (item.id === id) {
-        const updated = { ...item, [field]: value };
+    setMultipleProduct((prev) =>
+      prev.map((item) => {
+        if (item.id === id) {
+          const updated = { ...item, [field]: value };
 
-        // Auto-calculate prices when product/process/area changes
-        if (field === 'products' || field === 'description' || field === 'process') {
-          const productsByCategory = rates[updated.description] || [];
-          const selectedProductRate = productsByCategory.find(
-            (p) => p.product === updated.products
-          );
+          // Auto-calculate prices when product/process/area changes
+          if (
+            field === "products" ||
+            field === "description" ||
+            field === "process"
+          ) {
+            const productsByCategory = rates[updated.description] || [];
+            const selectedProductRate = productsByCategory.find(
+              (p) => p.product === updated.products
+            );
 
-          if (selectedProductRate && updated.process) {
-            const rate = updated.process === "Fresh"
-              ? selectedProductRate.fresh
-              : selectedProductRate.re;
-            updated.prices = rate;
+            if (selectedProductRate && updated.process) {
+              const rate =
+                updated.process === "Fresh"
+                  ? selectedProductRate.fresh
+                  : selectedProductRate.re;
+              updated.prices = rate;
+            }
           }
-        }
 
-        return updated;
-      }
-      return item;
-    }));
+          return updated;
+        }
+        return item;
+      })
+    );
   };
 
   // Add new product item
   const handleAddProduct = () => {
-    setMultipleProduct([...multipleProduct, {
-      id: Date.now(),
-      description: "",
-      products: "",
-      process: "",
-      area: "",
-      prices: "",
-      areaSqFt: "",
-    }]);
+    setMultipleProduct([
+      ...multipleProduct,
+      {
+        id: Date.now(),
+        description: "",
+        products: "",
+        process: "",
+        area: "",
+        prices: "",
+        areaSqFt: "",
+      },
+    ]);
   };
 
   // Remove product item
   const handleRemoveProduct = (id) => {
     if (multipleProduct.length > 1) {
-      setMultipleProduct(multipleProduct.filter(item => item.id !== id));
+      setMultipleProduct(multipleProduct.filter((item) => item.id !== id));
     }
   };
 
   const getGenerateCRN = async () => {
     try {
-      let reqBody = { city: formData?.city }
-      const res = await authInstance.generateCRN(reqBody)
-      console.log("res of getGenerateCRN", res)
+      let reqBody = { city: formData?.city };
+      const res = await authInstance.generateCRN(reqBody);
+      console.log("res of getGenerateCRN", res);
       if (res?.success) {
         setFormData((p) => ({ ...p, crn: res.data }));
       }
@@ -131,8 +140,8 @@ const CreateQuotation = () => {
   const getProductList = async () => {
     setLoadingProducts(true);
     try {
-      let reqBody = { city: formData?.city }
-      const res = await authInstance.getProduct(reqBody)
+      let reqBody = { city: formData?.city };
+      const res = await authInstance.getProduct(reqBody);
       console.log("res of product list------", res, res?.data?.rates);
       if (res?.success) {
         setLoadingProducts(false);
@@ -191,18 +200,17 @@ const CreateQuotation = () => {
     return true;
   };
 
-
   const handleSubmit = async () => {
     if (!validateForm()) return;
     try {
       // Prepare items for backend
-      const items = multipleProduct.map(item => ({
+      const items = multipleProduct.map((item) => ({
         category: item.description,
         process: item.process.toLowerCase(),
         area: item.areaSqFt,
         product: item.products,
-        areaSqFt: Number(item.area || 0)
-      }))
+        areaSqFt: Number(item.area || 0),
+      }));
 
       const reqBody = {
         city: formData.city.toLowerCase(),
@@ -213,18 +221,18 @@ const CreateQuotation = () => {
         customerContact: formData.contactNumber,
         customerAddress: formData.address,
         items: items,
-        discountPercent: Number(formData.discounts || 0)
+        discountPercent: Number(formData.discounts || 0),
       };
 
       console.log("Quotation reqBody --->", reqBody);
 
       const response = await authInstance.generateQuotation(reqBody);
-      console.log("response of generate quotation------------", response)
-      
+      console.log("response of generate quotation------------", response);
+
       if (response?.success) {
         toast.success("Quotation generated successfully");
         setPdfLink(response?.data?.url);
-        handleDownload(response?.data?.url)
+        handleDownload(response?.data?.url);
       }
     } catch (error) {
       toast.error("Something went wrong");
@@ -232,46 +240,46 @@ const CreateQuotation = () => {
     }
   };
   const resetForm = () => {
-  setStep(0);
-  setFormData({
-    city: "",
-    dob: "",
-    crn: "",
-    name: "",
-    contactNumber: "",
-    address: "",
-    total: "",
-    discounts: "",
-    payable: "",
-    region: "",
-  });
-  setMultipleProduct([{
-    id: Date.now(),
-    description: "",
-    products: "",
-    process: "",
-    area: "",
-    prices: "",
-    areaSqFt: "",
-  }]);
-};
-
+    setStep(0);
+    setFormData({
+      city: "",
+      dob: "",
+      crn: "",
+      name: "",
+      contactNumber: "",
+      address: "",
+      total: "",
+      discounts: "",
+      payable: "",
+      region: "",
+    });
+    setMultipleProduct([
+      {
+        id: Date.now(),
+        description: "",
+        products: "",
+        process: "",
+        area: "",
+        prices: "",
+        areaSqFt: "",
+      },
+    ]);
+  };
 
   const handleDownload = (url) => {
     if (!url) return;
 
     const link = document.createElement("a");
     link.href = url;
-    link.target = "_blank";   // open in new tab
+    link.target = "_blank"; // open in new tab
     link.rel = "noopener noreferrer";
 
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-     // Clear saved form after successful URL
-  localStorage.removeItem(STORAGE_KEY);
-  resetForm();
-
+    // Clear saved form after successful URL
+    localStorage.removeItem(STORAGE_KEY);
+    resetForm();
   };
 
   useEffect(() => {
@@ -292,7 +300,7 @@ const CreateQuotation = () => {
     const total = multipleProduct.reduce((sum, item) => {
       const area = Number(item.area || 0);
       const rate = Number(item.prices || 0);
-      return sum + (area * rate);
+      return sum + area * rate;
     }, 0);
 
     setFormData((p) => ({ ...p, total: total }));
@@ -341,15 +349,20 @@ const CreateQuotation = () => {
       }
     }
   }, []);
-   useEffect(() => {
-        const token = localStorage.getItem("urban_auth_token");
-        if (!token) {
-          router.replace("/");
-        }
-      }, [router]);
+  useEffect(() => {
+    const token = localStorage.getItem("urban_auth_token");
+    if (!token) {
+      router.replace("/");
+    }
+  }, [router]);
 
-
-  console.log("formData-----------------------", formData, getCategory, rates, multipleProduct)
+  console.log(
+    "formData-----------------------",
+    formData,
+    getCategory,
+    rates,
+    multipleProduct
+  );
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#fff4e6] px-4">
@@ -365,7 +378,11 @@ const CreateQuotation = () => {
             <div key={label} className="flex-1 flex items-center">
               <div
                 className={`w-8 h-8 flex items-center justify-center rounded-full text-sm font-semibold
-                  ${i <= step ? "bg-orange-500 text-white" : "bg-gray-200 text-gray-500"}`}
+                  ${
+                    i <= step
+                      ? "bg-orange-500 text-white"
+                      : "bg-gray-200 text-gray-500"
+                  }`}
               >
                 {i + 1}
               </div>
@@ -386,14 +403,18 @@ const CreateQuotation = () => {
         {/* STEP 1 – City */}
         {step === 0 && (
           <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-gray-700">Select City</label>
+            <label className="text-sm font-medium text-gray-700">
+              Select City
+            </label>
             <select
               name="city"
               value={formData.city}
               onChange={handleChange}
               className="w-full border rounded-lg p-3 focus:outline-orange-400 input-black"
             >
-              <option value="" className="text-black input-black">Select City</option>
+              <option value="" className="text-black input-black">
+                Select City
+              </option>
               {cities.map((item) => (
                 <option key={item.id} value={item.city}>
                   {item.city}
@@ -408,7 +429,9 @@ const CreateQuotation = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* DOB */}
             <div className="flex flex-col gap-1">
-              <label className="text-sm font-medium text-gray-700">Today's Date</label>
+              <label className="text-sm font-medium text-gray-700">
+                Today's Date
+              </label>
               <input
                 name="dob"
                 type="date"
@@ -464,7 +487,6 @@ const CreateQuotation = () => {
                 }}
                 className="w-full border rounded-lg p-3 focus:outline-orange-400 input-black"
               />
-
             </div>
 
             {/* Address */}
@@ -505,9 +527,14 @@ const CreateQuotation = () => {
               );
 
               return (
-                <div key={product.id} className="border rounded-lg p-4 space-y-3 bg-gray-50">
+                <div
+                  key={product.id}
+                  className="border rounded-lg p-4 space-y-3 bg-gray-50"
+                >
                   <div className="flex justify-between items-center">
-                    <span className="text-sm font-semibold text-gray-700">Product {index + 1}</span>
+                    <span className="text-sm font-semibold text-gray-700">
+                      Product {index + 1}
+                    </span>
                     {multipleProduct.length > 1 && (
                       <button
                         onClick={() => handleRemoveProduct(product.id)}
@@ -521,15 +548,25 @@ const CreateQuotation = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Category */}
                     <div className="flex flex-col gap-1">
-                      <label className="text-sm font-medium text-gray-700">Category</label>
+                      <label className="text-sm font-medium text-gray-700">
+                        Category
+                      </label>
                       <select
                         value={product.description}
-                        onChange={(e) => handleMultipleProductChange(product.id, 'description', e.target.value)}
+                        onChange={(e) =>
+                          handleMultipleProductChange(
+                            product.id,
+                            "description",
+                            e.target.value
+                          )
+                        }
                         className="w-full border  rounded-lg p-3 focus:outline-orange-400 input-black"
                         disabled={loadingProducts}
                       >
                         <option value="" className="input-black">
-                          {loadingProducts ? "Loading Category..." : "Select Category"}
+                          {loadingProducts
+                            ? "Loading Category..."
+                            : "Select Category"}
                         </option>
                         {getCategory.map((item) => (
                           <option key={item} value={item}>
@@ -541,18 +578,32 @@ const CreateQuotation = () => {
 
                     {/* Product */}
                     <div className="flex flex-col gap-1">
-                      <label className="text-sm font-medium text-gray-700">Product</label>
+                      <label className="text-sm font-medium text-gray-700">
+                        Product
+                      </label>
                       <select
                         value={product.products}
-                        onChange={(e) => handleMultipleProductChange(product.id, 'products', e.target.value)}
+                        onChange={(e) =>
+                          handleMultipleProductChange(
+                            product.id,
+                            "products",
+                            e.target.value
+                          )
+                        }
                         className="w-full border rounded-lg p-3 focus:outline-orange-400 input-black"
                         disabled={!product.description || loadingProducts}
                       >
                         <option value="" className="input-black">
-                          {loadingProducts ? "Loading products..." : "Select Product"}
+                          {loadingProducts
+                            ? "Loading products..."
+                            : "Select Product"}
                         </option>
                         {productsByCategory.map((item, idx) => (
-                          <option key={idx} value={item.product} className="input-black">
+                          <option
+                            key={idx}
+                            value={item.product}
+                            className="input-black"
+                          >
                             {item.product}
                           </option>
                         ))}
@@ -561,10 +612,18 @@ const CreateQuotation = () => {
 
                     {/* Process */}
                     <div className="flex flex-col gap-1">
-                      <label className="text-sm font-medium text-gray-700">Process</label>
+                      <label className="text-sm font-medium text-gray-700">
+                        Process
+                      </label>
                       <select
                         value={product.process}
-                        onChange={(e) => handleMultipleProductChange(product.id, 'process', e.target.value)}
+                        onChange={(e) =>
+                          handleMultipleProductChange(
+                            product.id,
+                            "process",
+                            e.target.value
+                          )
+                        }
                         className="w-full border rounded-lg p-3 focus:outline-orange-400 input-black"
                         disabled={!product.description || loadingProducts}
                       >
@@ -572,7 +631,11 @@ const CreateQuotation = () => {
                           {loadingProducts ? "Loading..." : "Select Process"}
                         </option>
                         {processType.map((item, idx) => (
-                          <option key={idx} value={item} className="input-black">
+                          <option
+                            key={idx}
+                            value={item}
+                            className="input-black"
+                          >
                             {item}
                           </option>
                         ))}
@@ -581,30 +644,45 @@ const CreateQuotation = () => {
 
                     {/* Area (Paintable) */}
                     <div className="flex flex-col gap-1">
-                      <label className="text-sm font-medium text-gray-700">Paintable Area</label>
+                      <label className="text-sm font-medium text-gray-700">
+                        Where to paint
+                      </label>
                       <input
                         type="text"
                         value={product.areaSqFt}
                         placeholder="Area to paint (eg. walls, ceilings, etc.)"
-                        onChange={(e) => handleMultipleProductChange(product.id, 'areaSqFt', e.target.value)}
+                        onChange={(e) =>
+                          handleMultipleProductChange(
+                            product.id,
+                            "areaSqFt",
+                            e.target.value
+                          )
+                        }
                         className="w-full border rounded-lg p-3 focus:outline-orange-400 input-black"
                       />
                     </div>
 
                     {/* Area (sqft) */}
                     <div className="flex flex-col gap-1">
-                      <label className="text-sm font-medium text-gray-700">Area (sqft)</label>
+                      <label className="text-sm font-medium text-gray-700">
+                        Area (sqft)
+                      </label>
                       <input
-                      
                         value={product.area}
                         placeholder="Enter area in sqft"
-                        onChange={(e) => handleMultipleProductChange(product.id, 'area', e.target.value)}
+                        onChange={(e) =>
+                          handleMultipleProductChange(
+                            product.id,
+                            "area",
+                            e.target.value
+                          )
+                        }
                         className="w-full border rounded-lg p-3 focus:outline-orange-400 input-black"
                       />
                     </div>
 
                     {/* Rate / Price */}
-                    <div className="flex flex-col gap-1">
+                    {/* <div className="flex flex-col gap-1">
                       <label className="text-sm font-medium text-gray-700">Rate</label>
                       <input
                         value={product.prices}
@@ -612,7 +690,7 @@ const CreateQuotation = () => {
                         placeholder="Price per sqft"
                         className="w-full border rounded-lg p-3  cursor-not-allowed input-black"
                       />
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               );
@@ -620,7 +698,9 @@ const CreateQuotation = () => {
 
             {/* Discount */}
             <div className="flex flex-col gap-1">
-              <label className="text-sm font-medium text-gray-700">Discount (%)</label>
+              <label className="text-sm font-medium text-gray-700">
+                Discount (%)
+              </label>
               <input
                 name="discounts"
                 type="number"
@@ -635,10 +715,14 @@ const CreateQuotation = () => {
 
             {/* Total */}
             <div className="flex flex-col gap-1">
-              <label className="text-sm font-medium text-gray-700">Total Amount</label>
+              <label className="text-sm font-medium text-gray-700">
+                Total Amount
+              </label>
               <input
                 name="total"
-                value={formData.total !== "" ? Number(formData.total).toFixed(2) : ""}
+                value={
+                  formData.total !== "" ? Number(formData.total).toFixed(2) : ""
+                }
                 readOnly
                 placeholder="Total"
                 className="w-full border rounded-lg p-3 bg-gray-100 input-black"
@@ -647,10 +731,16 @@ const CreateQuotation = () => {
 
             {/* Payable */}
             <div className="flex flex-col gap-1">
-              <label className="text-sm font-medium text-gray-700">Payable Amount</label>
+              <label className="text-sm font-medium text-gray-700">
+                Payable Amount
+              </label>
               <input
                 name="payable"
-                value={formData.payable !== "" ? Number(formData.payable).toFixed(2) : ""}
+                value={
+                  formData.payable !== ""
+                    ? Number(formData.payable).toFixed(2)
+                    : ""
+                }
                 readOnly
                 placeholder="Payable Amount"
                 className="w-full border rounded-lg p-3 bg-gray-100 input-black"
@@ -704,9 +794,6 @@ const CreateQuotation = () => {
 };
 
 export default CreateQuotation;
-
-
-
 
 // "use client";
 
@@ -861,8 +948,6 @@ export default CreateQuotation;
 //     document.body.removeChild(link);
 //   };
 
-
-
 //   useEffect(() => {
 //     if (formData.city && prevCityRef.current !== formData.city) {
 //       prevCityRef.current = formData.city;
@@ -928,8 +1013,6 @@ export default CreateQuotation;
 //     document.body.removeChild(link);
 //   }, [pdfLink]);
 
-
-
 //   console.log("formData-----------------------", formData, getCategory, rates)
 //   return (
 //     <div className="min-h-screen flex items-center justify-center bg-[#fff4e6] px-4">
@@ -984,7 +1067,6 @@ export default CreateQuotation;
 //             </select>
 //           </div>
 //         )}
-
 
 //         {/* STEP 2 – Customer */}
 //         {step === 1 && (
