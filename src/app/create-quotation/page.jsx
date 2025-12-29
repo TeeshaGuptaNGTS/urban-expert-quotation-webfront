@@ -260,18 +260,51 @@ const CreateQuotation = () => {
   const handleDownload = (url) => {
     if (!url) return;
 
-    const link = document.createElement("a");
-    link.href = url;
-    link.target = "_blank"; // open in new tab
-    link.rel = "noopener noreferrer";
+    try {
+      // Parse the URL
+      const parts = url.split("/").filter(Boolean);
 
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    // Clear saved form after successful URL
-    localStorage.removeItem(STORAGE_KEY);
-    resetForm();
+      // Get last 3 parts: username, city, filename
+      const username = parts[parts.length - 3];
+      const city = parts[parts.length - 2];
+
+      // Construct correct filename
+      const fileName = `${username}-${city}-quotation.pdf`;
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = fileName;       // <-- forces download name
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // Clean up
+      localStorage.removeItem(STORAGE_KEY);
+      resetForm();
+    } catch (error) {
+      console.error("Invalid URL format", error);
+    }
   };
+
+
+  // const handleDownload = (url) => {
+  //   if (!url) return;
+
+  //   const link = document.createElement("a");
+  //   link.href = url;
+  //   link.target = "_blank"; // open in new tab
+  //   link.rel = "noopener noreferrer";
+
+  //   document.body.appendChild(link);
+  //   link.click();
+  //   document.body.removeChild(link);
+  //   // Clear saved form after successful URL
+  //   localStorage.removeItem(STORAGE_KEY);
+  //   resetForm();
+  // };
 
   useEffect(() => {
     if (formData.city && prevCityRef.current !== formData.city) {
@@ -340,12 +373,12 @@ const CreateQuotation = () => {
       }
     }
   }, []);
-  useEffect(() => {
-    const token = localStorage.getItem("urban_auth_token");
-    if (!token) {
-      router.replace("/");
-    }
-  }, [router]);
+  // useEffect(() => {
+  //   const token = localStorage.getItem("urban_auth_token");
+  //   if (!token) {
+  //     router.replace("/");
+  //   }
+  // }, [router]);
 
   console.log(
     "formData-----------------------",
@@ -369,10 +402,9 @@ const CreateQuotation = () => {
             <div key={label} className="flex-1 flex items-center">
               <div
                 className={`w-8 h-8 flex items-center justify-center rounded-full text-sm font-semibold
-                  ${
-                    i <= step
-                      ? "bg-orange-500 text-white"
-                      : "bg-gray-200 text-gray-500"
+                  ${i <= step
+                    ? "bg-orange-500 text-white"
+                    : "bg-gray-200 text-gray-500"
                   }`}
               >
                 {i + 1}
