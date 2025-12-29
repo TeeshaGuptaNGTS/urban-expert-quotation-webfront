@@ -44,6 +44,7 @@ const CreateQuotation = () => {
     discounts: "",
     payable: "",
     region: "",
+    email: "",
   });
   const prevCityRef = useRef("");
   const [getProduct, setGetProduct] = useState([]);
@@ -205,6 +206,7 @@ const CreateQuotation = () => {
 
       const reqBody = {
         city: formData.city.toLowerCase(),
+        email: formData.email.toLowerCase(),
         region: formData.region || "",
         crn: formData.crn,
         quotationDate: new Date().toISOString().split("T")[0],
@@ -238,6 +240,7 @@ const CreateQuotation = () => {
       crn: "",
       name: "",
       contactNumber: "",
+      email: "",
       address: "",
       total: "",
       discounts: "",
@@ -273,7 +276,7 @@ const CreateQuotation = () => {
 
       const link = document.createElement("a");
       link.href = url;
-      link.download = fileName;       // <-- forces download name
+      link.download = fileName; // <-- forces download name
       link.target = "_blank";
       link.rel = "noopener noreferrer";
 
@@ -288,7 +291,6 @@ const CreateQuotation = () => {
       console.error("Invalid URL format", error);
     }
   };
-
 
   // const handleDownload = (url) => {
   //   if (!url) return;
@@ -402,9 +404,10 @@ const CreateQuotation = () => {
             <div key={label} className="flex-1 flex items-center">
               <div
                 className={`w-8 h-8 flex items-center justify-center rounded-full text-sm font-semibold
-                  ${i <= step
-                    ? "bg-orange-500 text-white"
-                    : "bg-gray-200 text-gray-500"
+                  ${
+                    i <= step
+                      ? "bg-orange-500 text-white"
+                      : "bg-gray-200 text-gray-500"
                   }`}
               >
                 {i + 1}
@@ -508,6 +511,22 @@ const CreateQuotation = () => {
                     setFormData((p) => ({ ...p, contactNumber: val }));
                   }
                 }}
+                className="w-full border rounded-lg p-3 focus:outline-orange-400 input-black"
+              />
+            </div>
+
+            {/* Customer Email */}
+            <div className="flex flex-col gap-1  ">
+              <label className="text-sm font-medium text-gray-700">
+                Customer Email <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="email"
+                name="email"
+                value={formData?.email}
+                placeholder="Enter customer email"
+                required
+                onChange={handleChange}
                 className="w-full border rounded-lg p-3 focus:outline-orange-400 input-black"
               />
             </div>
