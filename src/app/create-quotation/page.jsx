@@ -206,7 +206,7 @@ const CreateQuotation = () => {
 
       const reqBody = {
         city: formData.city.toLowerCase(),
-        email: formData.email.toLowerCase(),
+        customerEmail: formData.email.toLowerCase(),
         region: formData.region || "",
         crn: formData.crn,
         quotationDate: new Date().toISOString().split("T")[0],
